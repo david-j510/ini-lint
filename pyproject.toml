@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inilint"
+version = "0.1.0"
+description = "Command-line linter for INI files: duplicate sections, duplicate keys, structural problems."
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "david-j510" }]
+
+[project.scripts]
+inilint = "inilint.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["inilint*"]
