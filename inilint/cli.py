@@ -13,6 +13,11 @@ def main(argv=None) -> int:
     )
     parser.add_argument("path", help="path to the .ini file to check")
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON instead of plain text")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="treat warnings as errors for the purpose of the exit code",
+    )
     args = parser.parse_args(argv)
 
     file_path = Path(args.path)
@@ -26,7 +31,8 @@ def main(argv=None) -> int:
         return 2
 
     issues = lint(text)
-    has_errors = any(issue.severity == "error" for issue in issues)
+    severities = {"error"} if not args.strict else {"error", "warning"}
+    has_errors = any(issue.severity in severities for issue in issues)
 
     if args.json:
         payload = {

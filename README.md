@@ -52,6 +52,16 @@ The process exits with status `1` if any errors were found, `0` otherwise.
 Warnings (like trailing whitespace or a key that appears before any
 section header) are reported but don't affect the exit code.
 
+Pass `--strict` to make warnings fail the exit code too, for CI setups
+that want zero tolerance instead of just catching outright errors:
+
+```
+$ inilint --strict config.ini
+```
+
+With `--strict`, `ok` in the JSON output also turns `false` if only
+warnings were found.
+
 ## JSON output
 
 Pass `--json` to get a machine-readable report instead, useful for CI or
