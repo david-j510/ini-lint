@@ -62,6 +62,18 @@ $ inilint --strict config.ini
 With `--strict`, `ok` in the JSON output also turns `false` if only
 warnings were found.
 
+## Reading from stdin
+
+Pass `-` instead of a file path to read from stdin, useful for piping in
+generated config or checking a file before it's written to disk:
+
+```
+$ cat config.ini | inilint -
+```
+
+The file name in both plain-text and JSON output is reported as
+`<stdin>`.
+
 ## JSON output
 
 Pass `--json` to get a machine-readable report instead, useful for CI or

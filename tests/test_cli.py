@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from inilint.cli import main
 
@@ -11,6 +12,13 @@ from inilint.cli import main
 def run(*args):
     stdout = io.StringIO()
     with contextlib.redirect_stdout(stdout):
+        code = main(list(args))
+    return code, stdout.getvalue()
+
+
+def run_with_stdin(text, *args):
+    stdout = io.StringIO()
+    with contextlib.redirect_stdout(stdout), mock.patch("sys.stdin", io.StringIO(text)):
         code = main(list(args))
     return code, stdout.getvalue()
 
@@ -68,6 +76,23 @@ class CliTests(unittest.TestCase):
     def test_missing_file_exits_two(self):
         code, out = run("/no/such/file.ini")
         self.assertEqual(code, 2)
+
+    def test_stdin_dash_reads_from_stdin(self):
+        code, out = run_with_stdin("[server]\nport = 1\nport = 2\n", "-")
+        self.assertEqual(code, 1)
+        self.assertIn("<stdin>", out)
+        self.assertIn("already defined on line 2", out)
+
+    def test_stdin_dash_clean_input(self):
+        code, out = run_with_stdin("[server]\nhost = 0.0.0.0\n", "-")
+        self.assertEqual(code, 0)
+        self.assertIn("<stdin>: no problems found", out)
+
+    def test_stdin_dash_json(self):
+        code, out = run_with_stdin("key = 1\n", "--json", "-")
+        payload = json.loads(out)
+        self.assertEqual(payload["file"], "<stdin>")
+        self.assertEqual(code, 0)
 
 
 if __name__ == "__main__":
